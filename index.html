@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Genesys Cloud Disconnect Tool - Bulk disconnect conversations with custom wrap-up codes">
+    <title>Genesys Cloud Disconnect Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Animated Background -->
+        <div class="bg-animation">
+            <div class="gradient-orb orb-1"></div>
+            <div class="gradient-orb orb-2"></div>
+            <div class="gradient-orb orb-3"></div>
+        </div>
+
+        <!-- Credit Badge - Fixed Top Right -->
+        <a href="https://github.com/PilviContactCenter" target="_blank" class="credit-badge"
+            title="Built by Dawid Kacprzak">
+            <img src="badge.png" alt="Proudly built by Dawid Kacprzak">
+        </a>
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            <line x1="1" y1="1" x2="23" y2="23" stroke="#ff6b6b" stroke-width="3" />
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <h1>Disconnect Tool</h1>
+                        <span class="subtitle">Genesys Cloud</span>
+                    </div>
+                </div>
+                <div class="auth-status" id="authStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Not Connected</span>
+                </div>
+            </header>
+
+            <!-- Connection Card -->
+            <section class="card connection-card" id="connectionSection">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Connection Settings</h2>
+                        <p>Configure your Genesys Cloud credentials</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="clientId">Client ID</label>
+                        <input type="text" id="clientId" placeholder="Enter OAuth Client ID" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientSecret">Client Secret</label>
+                        <div class="password-input">
+                            <input type="password" id="clientSecret" placeholder="Enter OAuth Client Secret"
+                                autocomplete="off">
+                            <button type="button" class="toggle-password" onclick="togglePassword('clientSecret')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="region">Region</label>
+                        <select id="region">
+                            <option value="mypurecloud.de">Europe (Frankfurt) - mypurecloud.de</option>
+                            <option value="mypurecloud.com">Americas (US East) - mypurecloud.com</option>
+                            <option value="mypurecloud.ie">EMEA (Dublin) - mypurecloud.ie</option>
+                            <option value="mypurecloud.com.au">APAC (Sydney) - mypurecloud.com.au</option>
+                            <option value="mypurecloud.jp">APAC (Tokyo) - mypurecloud.jp</option>
+                            <option value="usw2.pure.cloud">Americas (US West) - usw2.pure.cloud</option>
+                            <option value="cac1.pure.cloud">Americas (Canada) - cac1.pure.cloud</option>
+                            <option value="sae1.pure.cloud">Americas (São Paulo) - sae1.pure.cloud</option>
+                            <option value="euw2.pure.cloud">EMEA (London) - euw2.pure.cloud</option>
+                            <option value="aps1.pure.cloud">APAC (Mumbai) - aps1.pure.cloud</option>
+                            <option value="apne2.pure.cloud">APAC (Seoul) - apne2.pure.cloud</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="connectBtn" onclick="authenticate()">
+                        <span class="btn-content">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                <polyline points="10 17 15 12 10 7" />
+                                <line x1="15" y1="12" x2="3" y2="12" />
+                            </svg>
+                            Connect
+                        </span>
+                        <span class="btn-loader"></span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- CSV Upload Card -->
+            <section class="card upload-card hidden" id="uploadSection">
+                <div class="card-header">
+                    <div class="card-icon upload-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Import CSV File</h2>
+                        <p>Upload a CSV file with Case IDs or Conversation IDs</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="upload-zone" id="uploadZone">
+                        <input type="file" id="csvFile" accept=".csv" hidden>
+                        <div class="upload-content">
+                            <div class="upload-icon-large">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="12" y1="18" x2="12" y2="12" />
+                                    <line x1="9" y1="15" x2="15" y2="15" />
+                                </svg>
+                            </div>
+                            <p class="upload-text">Drag & drop your CSV file here</p>
+                            <p class="upload-subtext">or click to browse</p>
+                            <div class="file-info hidden" id="fileInfo">
+                                <span class="file-name" id="fileName"></span>
+                                <span class="file-records" id="fileRecords"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="searchType">Search Type</label>
+                            <select id="searchType">
+                                <option value="caseid">Case ID (externalTag)</option>
+                                <option value="conversationid">Conversation ID</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="monthsBack">Months to Search</label>
+                            <input type="number" id="monthsBack" value="3" min="1" max="24">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Wrap-up Settings Card -->
+            <section class="card wrapup-card hidden" id="wrapupSection">
+                <div class="card-header">
+                    <div class="card-icon wrapup-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Wrap-up Settings</h2>
+                        <p>Configure wrap-up code for disconnected conversations</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="wrapUpCode">Wrap-up Code</label>
+                        <input type="text" id="wrapUpCode" placeholder="Enter wrap-up code">
+                    </div>
+                    <div class="form-group">
+                        <label for="wrapUpNotes">Wrap-up Notes (Optional)</label>
+                        <textarea id="wrapUpNotes" placeholder="Enter optional notes..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="wrapUpDuration">Wrap-up Duration (seconds)</label>
+                        <input type="number" id="wrapUpDuration" value="1" min="1" max="3600">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Process Button -->
+            <section class="action-section hidden" id="actionSection">
+                <button class="btn btn-danger btn-large" id="processBtn" onclick="processDisconnect()">
+                    <span class="btn-content">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                            <line x1="1" y1="1" x2="23" y2="23" />
+                        </svg>
+                        Start Disconnect Process
+                    </span>
+                    <span class="btn-loader"></span>
+                </button>
+            </section>
+
+            <!-- Progress Section -->
+            <section class="card progress-card hidden" id="progressSection">
+                <div class="card-header">
+                    <div class="card-icon progress-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v4" />
+                            <path d="M12 18v4" />
+                            <path d="M4.93 4.93l2.83 2.83" />
+                            <path d="M16.24 16.24l2.83 2.83" />
+                            <path d="M2 12h4" />
+                            <path d="M18 12h4" />
+                            <path d="M4.93 19.07l2.83-2.83" />
+                            <path d="M16.24 7.76l2.83-2.83" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Processing</h2>
+                        <p id="progressText">Initializing...</p>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="stat">
+                            <span class="stat-value" id="statProcessed">0</span>
+                            <span class="stat-label">Processed</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="statFound">0</span>
+                            <span class="stat-label">Found</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="statDisconnected">0</span>
+                            <span class="stat-label">Disconnected</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="statErrors">0</span>
+                            <span class="stat-label">Errors</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Log Section -->
+            <section class="card log-card hidden" id="logSection">
+                <div class="card-header">
+                    <div class="card-icon log-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Activity Log</h2>
+                        <p>Real-time processing logs</p>
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="exportLog()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        Export
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="log-container" id="logContainer"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
