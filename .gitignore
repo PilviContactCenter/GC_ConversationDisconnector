@@ -42,3 +42,4 @@ ENV/
 # Original executable (sensitive)
 *.exe
 redactedApp.py
+test.csv
