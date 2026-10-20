@@ -26,7 +26,6 @@ const PUBLIC_ASSETS = new Map([
     ['/index.html', 'index.html'],
     ['/app.js', 'app.js'],
     ['/styles.css', 'styles.css'],
-    ['/badge.png', 'badge.png'],
     ['/csv-utils.js', 'csv-utils.js']
 ]);
 
