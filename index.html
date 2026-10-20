@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Genesys Cloud Disconnect Tool - Bulk disconnect conversations with custom wrap-up codes">
+        content="Genesys Cloud Disconnect Tool - Preview and recover stuck Genesys Cloud conversations with verified outcomes">
     <title>Genesys Cloud Disconnect Tool</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -23,7 +23,7 @@
         </div>
 
         <!-- Credit Badge - Fixed Top Right -->
-        <a href="https://github.com/PilviContactCenter" target="_blank" class="credit-badge"
+        <a href="https://github.com/PilviContactCenter" target="_blank" rel="noopener noreferrer" class="credit-badge"
             title="Built by Dawid Kacprzak">
             <img src="badge.png" alt="Proudly built by Dawid Kacprzak">
         </a>
@@ -42,7 +42,7 @@
                         </svg>
                     </div>
                     <div class="logo-text">
-                        <h1>Disconnect Tool</h1>
+                        <h1>Conversation Recovery</h1>
                         <span class="subtitle">Genesys Cloud</span>
                     </div>
                 </div>
@@ -52,6 +52,8 @@
                 </div>
             </header>
 
+            <div class="notice recovery-notice" role="note"><strong>Recovery tool for stuck interactions.</strong> Full teardown can end live media and assign system wrap-up codes. Start with a preview.</div>
+            <div id="demoNotice" class="notice demo-notice hidden" role="status"><strong>Demo preview.</strong> Synthetic conversation IDs only. No Genesys Cloud requests or live changes.</div>
             <!-- Connection Card -->
             <section class="card connection-card" id="connectionSection">
                 <div class="card-header">
@@ -63,7 +65,7 @@
                     </div>
                     <div>
                         <h2>Connection Settings</h2>
-                        <p>Configure your Genesys Cloud credentials</p>
+                        <p>Local client-credentials session · credentials are never saved in browser storage</p>
                     </div>
                 </div>
                 <div class="card-content">
@@ -76,7 +78,7 @@
                         <div class="password-input">
                             <input type="password" id="clientSecret" placeholder="Enter OAuth Client Secret"
                                 autocomplete="off">
-                            <button type="button" class="toggle-password" onclick="togglePassword('clientSecret')">
+                            <button type="button" class="toggle-password" aria-label="Show or hide client secret" onclick="togglePassword('clientSecret')">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                                     <circle cx="12" cy="12" r="3" />
@@ -98,6 +100,9 @@
                             <option value="euw2.pure.cloud">EMEA (London) - euw2.pure.cloud</option>
                             <option value="aps1.pure.cloud">APAC (Mumbai) - aps1.pure.cloud</option>
                             <option value="apne2.pure.cloud">APAC (Seoul) - apne2.pure.cloud</option>
+                            <option value="apne3.pure.cloud">APAC (Osaka) - apne3.pure.cloud</option>
+                            <option value="mec1.pure.cloud">Middle East (UAE) - mec1.pure.cloud</option>
+                            <option value="use2.us-gov-pure.cloud">US East 2 (FedRAMP) - use2.us-gov-pure.cloud</option>
                         </select>
                     </div>
                     <button class="btn btn-primary" id="connectBtn" onclick="authenticate()">
@@ -126,11 +131,11 @@
                     </div>
                     <div>
                         <h2>Import CSV File</h2>
-                        <p>Upload a CSV file with Case IDs or Conversation IDs</p>
+                        <p>First column only · optional header · up to 1,000 records / 1 MiB</p>
                     </div>
                 </div>
                 <div class="card-content">
-                    <div class="upload-zone" id="uploadZone">
+                    <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="Choose a CSV file with conversation IDs or external tags">
                         <input type="file" id="csvFile" accept=".csv" hidden>
                         <div class="upload-content">
                             <div class="upload-icon-large">
@@ -159,8 +164,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="monthsBack">Months to Search</label>
-                            <input type="number" id="monthsBack" value="3" min="1" max="24">
+                            <label for="monthsBack">30-day Search Windows</label>
+                            <input type="number" id="monthsBack" value="3" min="1" max="18">
                         </div>
                     </div>
                 </div>
@@ -176,40 +181,43 @@
                         </svg>
                     </div>
                     <div>
-                        <h2>Wrap-up Settings</h2>
-                        <p>Configure wrap-up code for disconnected conversations</p>
+                        <h2>Optional Wrap-up</h2>
+                        <p>Best effort on agent participants; separate from teardown verification</p>
                     </div>
                 </div>
                 <div class="card-content">
                     <div class="form-group">
-                        <label for="wrapUpCode">Wrap-up Code</label>
-                        <input type="text" id="wrapUpCode" placeholder="Enter wrap-up code">
+                        <label for="wrapUpCode">Wrap-up Code UUID (optional)</label>
+                        <input type="text" id="wrapUpCode" placeholder="Leave blank to skip custom wrap-up">
                     </div>
                     <div class="form-group">
                         <label for="wrapUpNotes">Wrap-up Notes (Optional)</label>
-                        <textarea id="wrapUpNotes" placeholder="Enter optional notes..." rows="3"></textarea>
+                        <textarea id="wrapUpNotes" maxlength="1000" placeholder="Enter optional notes..." rows="3"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="wrapUpDuration">Wrap-up Duration (seconds)</label>
-                        <input type="number" id="wrapUpDuration" value="1" min="1" max="3600">
+                        <input type="number" id="wrapUpDuration" value="1" min="0" max="3600">
                     </div>
                 </div>
             </section>
 
             <!-- Process Button -->
             <section class="action-section hidden" id="actionSection">
-                <button class="btn btn-danger btn-large" id="processBtn" onclick="processDisconnect()">
+                <label class="preview-control"><input id="previewOnly" type="checkbox" checked onchange="updateActionButton()"> Preview only — look up targets without sending disconnect or wrap-up requests</label>
+                <button class="btn btn-primary btn-large" id="processBtn" onclick="processDisconnect()">
                     <span class="btn-content">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path
                                 d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                             <line x1="1" y1="1" x2="23" y2="23" />
                         </svg>
-                        Start Disconnect Process
+                        <span id="processLabel">Preview conversations</span>
                     </span>
                     <span class="btn-loader"></span>
                 </button>
             </section>
+
+            <button class="btn btn-secondary hidden" id="stopBtn" onclick="stopProcessing()">Stop after current request</button>
 
             <!-- Progress Section -->
             <section class="card progress-card hidden" id="progressSection">
@@ -227,7 +235,7 @@
                         </svg>
                     </div>
                     <div>
-                        <h2>Processing</h2>
+                        <h2>Run Summary</h2>
                         <p id="progressText">Initializing...</p>
                     </div>
                 </div>
@@ -236,6 +244,8 @@
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
                     <div class="progress-stats">
+                        <div class="stat"><span class="stat-value" id="statAccepted">0</span><span class="stat-label">Requests accepted</span></div>
+                        <div class="stat"><span class="stat-value" id="statPending">0</span><span class="stat-label">Unverified</span></div>
                         <div class="stat">
                             <span class="stat-value" id="statProcessed">0</span>
                             <span class="stat-label">Processed</span>
@@ -246,7 +256,7 @@
                         </div>
                         <div class="stat">
                             <span class="stat-value" id="statDisconnected">0</span>
-                            <span class="stat-label">Disconnected</span>
+                            <span class="stat-label">Verified ended</span>
                         </div>
                         <div class="stat">
                             <span class="stat-value" id="statErrors">0</span>
@@ -269,7 +279,7 @@
                     </div>
                     <div>
                         <h2>Activity Log</h2>
-                        <p>Real-time processing logs</p>
+                        <p>Discovery, accepted requests, read-back results and wrap-up outcomes</p>
                     </div>
                     <button class="btn btn-secondary btn-small" onclick="exportLog()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -290,6 +300,7 @@
         <div class="toast-container" id="toastContainer"></div>
     </div>
 
+    <script src="csv-utils.js"></script>
     <script src="app.js"></script>
 </body>
 
